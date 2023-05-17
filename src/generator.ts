@@ -1,50 +1,44 @@
-import { ExplicitCallTextNodeElement } from "./constant";
+import { DefaultTextTag, ExplicitCallTextNodeElement } from "./constant";
+import { stringify } from "html-to-ast";
 
-type HtmlAstNode = {
+type HTMLASTNode = {
   attrs: { [key: string]: string };
-  children: HtmlAstNode[];
+  children: HTMLASTNode[];
   name: keyof HTMLElementTagNameMap;
   type: "tag" | "text";
   content: string;
 };
 
-export default function generator(ast: HtmlAstNode[]): string {
-  function generateNodeString(node: HtmlAstNode, parent?: HtmlAstNode): string {
-    let LabelName = getName(node.name || node.type);
-    // @TODO 有些需要显式调用 Text
-    if (LabelName === "Text") {
-      console.log("---name---", parent?.name);
-      return parent && ExplicitCallTextNodeElement.includes(parent?.name)
-        ? `Text("${node.content}")`
-        : `"${node.content}"`;
-    }
-    if (LabelName === "SVG") return svgHandler(node);
+export default function generator(ast: HTMLASTNode[]): string {
+  return generateNodeString(ast[0]);
+}
 
-    console.log("---anshi---node", node);
-    let attrsCall = getAttrs(node.attrs);
-    let childrenListCall;
-    if (node.children?.length) {
-      childrenListCall = node.children?.map((item) =>
-        generateNodeString(item, node)
-      );
-      console.log("---anshi---childrenListCall", childrenListCall);
-      // 直接传入 text 文本
-      if (childrenListCall[0].startsWith('"')) {
-      } else {
-        childrenListCall = childrenListCall.join(",\n");
-        // 令最后一个 children 携带逗号以区分 children 的结束。
-        childrenListCall = "\n" + childrenListCall + ",\n";
-      }
-    } else if (node.content) {
-      childrenListCall = `"${node.content}"`;
-    }
+// dfs
+function generateNodeString(node: HTMLASTNode, parent?: HTMLASTNode): string {
+  let labelName = getName(node.name || node.type);
+  console.log("---anshi---node", node);
+  // 特殊出来的 node
 
-    return `${LabelName}(${
+  let attrsCall = getAttrs(node.attrs);
+  let childrenListCall = childrenHandler(node);
+
+  if (labelName === "Text") {
+    return textHandler(node, parent);
+  } else if (labelName === "Svg") {
+    return svgHandler(node);
+  } else if (
+    DefaultTextTag.includes(node.name) &&
+    node.children.length &&
+    node.children[0].type !== "text"
+  ) {
+    return `${labelName}("").Children(${
+      childrenListCall ? childrenListCall : ""
+    })${attrsCall}`;
+  } else {
+    return `${labelName}(${
       childrenListCall ? childrenListCall : ""
     })${attrsCall}`;
   }
-
-  return generateNodeString(ast[0]);
 }
 
 function getName(name: string): string {
@@ -68,7 +62,29 @@ function attrHandler(name: string, value: string) {
   return `.${upName}("${value}")`;
 }
 
-function svgHandler(node: HtmlAstNode): string {
-  // RawHTML("<svg> </svg>")
-  return "";
+function svgHandler(node: HTMLASTNode): string {
+  const html = stringify([node]);
+  return `RawHTML(\`${html}\`)`;
+}
+
+function textHandler(node: HTMLASTNode, parent?: HTMLASTNode): string {
+  return parent && ExplicitCallTextNodeElement.includes(parent?.name)
+    ? `Text("${node.content}")`
+    : `"${node.content}"`;
+}
+
+function childrenHandler(node: HTMLASTNode): string | undefined {
+  let output;
+  if (node.children?.length) {
+    output = node.children?.map((item) => generateNodeString(item, node));
+    // 非文本节点强制换行
+    if (!output[0].startsWith('"')) {
+      output = output.join(",\n");
+      output = "\n" + output + ",\n";
+    } else {
+      output = output.join(",\n");
+    }
+  }
+
+  return output;
 }

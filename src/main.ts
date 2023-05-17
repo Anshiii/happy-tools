@@ -6,13 +6,9 @@ export function html2go(html: string) {
   html = html.replace(/\s+(?=<)|(?<=>)\s+|\n/g, "");
   html = html.replace(/\s{2,}/g, " ");
   const ast = parse(html);
-  console.log("---anshi---ast", html);
-  console.log("---anshi---ast", ast);
   console.log("---anshi---ast", generator(ast));
 
   return generator(ast);
-  // 1.改造成 go 的 ast  再通过反解析器输出 go
-  // 2.自定义 compiler ，输出 go 片段
 }
 
 const htmlEle = document.querySelector(
@@ -23,23 +19,33 @@ const resultEle = document.querySelector(
   "textarea[name='go']"
 ) as HTMLTextAreaElement;
 
-const test = `<div class="container-instance container-pricing" data-background-color="grey">
+const test = `<header class="container-instance container-header" data-navigation-color="black">
 <div class="container-wrapper">
-  <h1 class="container-pricing-heading">Cost comparison for a typical project</h1>
-  <p class="container-pricing-text">Our solutions deliver outstanding cost reduction with unparalleled performance</p>
-  <div class="container-pricing-chart">
-    <div class="container-pricing-chart-column">
-      <div class="container-pricing-chart-name">The Plant’s solution</div>
-      <div class="container-pricing-chart-bar" data-background-color="blue" style="width: 35%"></div>
-    </div>
-    <div class="container-pricing-chart-column">
-      <div class="container-pricing-chart-name">Previous solution</div>
-      <div class="container-pricing-chart-bar" data-background-color="grey" style="width: 100%"></div>
-    </div>
-  </div>
-  <p class="container-pricing-text">Disclaimer:</p>
+    <a class="container-header-logo" href="#">
+        <svg viewBox="0 0 29 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M14.399 10.054V0L0 10.054V29.73h28.792V0L14.4 10.054z"
+                fill="currentColor">
+                <title>The Plant</title>
+            </path>
+        </svg>
+    </a>
+    <ul class="container-header-links" data-list-unset="true">
+        <li><a href="#">What we do</a></li>
+        <li data-dropdown>
+            <a href="#">Projects</a>
+            <ul class="container-header-sublinks" data-list-unset="true">
+                <li><a href="#">Commerce</a></li>
+                <li><a href="#">Contents</a></li>
+            </ul>
+        </li>
+        <li><a href="#">Why clients choose us</a></li>
+        <li><a href="#">Our company</a></li>
+    </ul>
+    <button class="container-header-menu">
+        <span class="container-header-menu-icon"></span>
+    </button>
 </div>
-</div>`;
+</header>`;
 htmlEle.value = test;
 document.querySelector("#convert")?.addEventListener("click", () => {
   const result = html2go(htmlEle?.value.trim());
