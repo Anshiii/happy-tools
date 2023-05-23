@@ -6,13 +6,20 @@ export interface IOption {
 }
 
 export function html2go(html: string, option: IOption) {
-  console.log("---anshi---option", option);
-  html = html.replace(/\s+(?=<)|(?<=>)\s+|\n/g, "");
-  html = html.replace(/\s{2,}/g, " ");
-  const ast = parse(html);
-  console.log("---anshi---ast", generator(ast, option));
+  /**
+   * clean the blank between the text,and between tag and text,
+   */
+  const cleanHtml = html
+    .replace(/\s+(?=<)|(?<=>)\s+|\n/g, "")
+    .replace(/\s{2,}/g, " ");
+
+  const ast = parse(cleanHtml);
 
   return generator(ast, option);
+}
+
+function copyResult(values: string) {
+  navigator.clipboard.writeText(values);
 }
 
 const htmlEle = document.querySelector(
@@ -23,7 +30,7 @@ const resultEle = document.querySelector(
   "textarea[name='go']"
 ) as HTMLTextAreaElement;
 
-const test = `<header class="container-instance container-header" data-navigation-color="black">
+const MOCK_DATA = `<header class="container-instance container-header" data-navigation-color="black">
 <div class="container-wrapper">
     <a class="container-header-logo" href="#">
         <svg viewBox="0 0 29 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,13 +59,18 @@ const test = `<header class="container-instance container-header" data-navigatio
     </button>
 </div>
 </header>`;
-htmlEle.value = test;
+htmlEle.value = MOCK_DATA;
 
 document.querySelector("#convert")?.addEventListener("click", () => {
   const forceNewLine = Boolean(
     (document.querySelector("#force-new-line") as HTMLInputElement).checked
   );
+  const autoCopy = Boolean(
+    (document.querySelector("#auto-copy") as HTMLInputElement).checked
+  );
   const result = html2go(htmlEle?.value.trim(), { forceNewLine });
+
+  autoCopy && copyResult(result);
 
   (resultEle as HTMLTextAreaElement).value = result;
 });

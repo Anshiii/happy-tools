@@ -11,9 +11,13 @@
       font-family: monospace;
     }
 
+    #app {
+      display: flex;
+    }
+
     .input {
-      width: 40vw;
       height: 80vh;
+      flex-grow: 1;
     }
 
     textarea {
@@ -54,6 +58,12 @@
       display: inline-block;
       width: 10vw;
       text-align: center;
+      align-self: center;
+      padding: 0 16px;
+    }
+
+    .actions input {
+      text-align: left;
     }
   </style>
 </head>
@@ -63,7 +73,12 @@
 
     <textarea name="html" id="text-html" class="input" cols="30" rows="10"></textarea>
     <div class="actions">
-      <input id="force-new-line" name="force-new-line" type="checkbox" checked="true"> <label>force new line</label>
+      <section>
+        <input id="force-new-line" name="force-new-line" type="checkbox" checked="true"> <label>force break</label>
+      </section>
+      <section>
+        <input id="auto-copy" name="auto-copy" type="checkbox" checked="true"> <label>auto copy</label>
+      </section>
       <button id="convert">convert</button>
     </div>
     <textarea name="go" id="text-go" class="input" cols="30" rows="10"></textarea>
