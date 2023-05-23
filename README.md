@@ -3,4 +3,5 @@
 1. [x] handle text node 
 2. [x] handle element that call the Text proactively
 3. [x] handle element without end tag
-4. [ ] special element like script.
+4. [x] handle the svg used raw html
+5. [ ] special element like script.
