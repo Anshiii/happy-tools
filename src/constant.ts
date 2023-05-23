@@ -1,39 +1,13 @@
-// the element that need to call Text to pass the text children.
-export const ExplicitCallTextNodeElement = [
-  "p",
-  "div",
-  "a",
-  "article",
-  "audio",
-  "body",
-  "footer",
-  "form",
-  "header",
-  "li",
-  "ul",
-  "link",
-  "main",
-  "ol",
-  "optgroup",
-  "section",
-  "table",
-  "tbody",
-  "td",
-  "th",
-  "tfoot",
-  "thead",
-  // and so on...
-];
-
+// the element that call the Text proactively in https://github.com/theplant/htmlgo/blob/master/elements.go
 export const DefaultTextTag = [
-  "button",
-  "span",
   "abbr",
   "b",
+  "button",
   "caption",
   "code",
   "del",
   "em",
+  "figcaption",
   "h1",
   "h2",
   "h3",
@@ -42,10 +16,24 @@ export const DefaultTextTag = [
   "h6",
   "label",
   "option",
+  "span",
   "strong",
   "sub",
   "textarea",
   "th",
   "title",
   "u",
+];
+
+// element call other attr proactively with OmitEndTag in https://github.com/theplant/htmlgo/blob/master/elements.go
+export const SpecialTag = [
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "img",
+  "input",
+  "link",
+  "meta",
 ];

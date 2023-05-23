@@ -1,5 +1,6 @@
-import { DefaultTextTag, ExplicitCallTextNodeElement } from "./constant";
+import { DefaultTextTag, SpecialTag } from "./constant";
 import { stringify } from "html-to-ast";
+import { IOption } from "./main";
 
 type HTMLASTNode = {
   attrs: { [key: string]: string };
@@ -9,31 +10,36 @@ type HTMLASTNode = {
   content: string;
 };
 
-export default function generator(ast: HTMLASTNode[]): string {
+const globalConfig = { forceNewLine: false };
+export default function generator(ast: HTMLASTNode[], option: IOption): string {
+  globalConfig.forceNewLine = option.forceNewLine;
   return generateNodeString(ast[0]);
 }
 
 // dfs
 function generateNodeString(node: HTMLASTNode, parent?: HTMLASTNode): string {
   let labelName = getName(node.name || node.type);
-  console.log("---anshi---node", node);
-  // 特殊出来的 node
 
   let attrsCall = getAttrs(node.attrs);
   let childrenListCall = childrenHandler(node);
 
-  if (labelName === "Text") {
+  /**
+   * For different tag, there's different rules.
+   * 1. DefaultTextTag: see defaultTextTagHandler
+   * 2. Text：return Text(content)
+   * 2. Svg: return the raw html
+   * 3. SpecialTag: see specialTagHandler
+   * 4.
+   *
+   */
+  if (DefaultTextTag.includes(node.name)) {
+    return defaultTextTagHandler(node, parent);
+  } else if (labelName === "Text") {
     return textHandler(node, parent);
   } else if (labelName === "Svg") {
     return svgHandler(node);
-  } else if (
-    DefaultTextTag.includes(node.name) &&
-    node.children.length &&
-    node.children[0].type !== "text"
-  ) {
-    return `${labelName}("").Children(${
-      childrenListCall ? childrenListCall : ""
-    })${attrsCall}`;
+  } else if (SpecialTag.includes(node.name)) {
+    return specialTagHandler(node);
   } else {
     return `${labelName}(${
       childrenListCall ? childrenListCall : ""
@@ -68,23 +74,60 @@ function svgHandler(node: HTMLASTNode): string {
 }
 
 function textHandler(node: HTMLASTNode, parent?: HTMLASTNode): string {
-  return parent && ExplicitCallTextNodeElement.includes(parent?.name)
-    ? `Text("${node.content}")`
-    : `"${node.content}"`;
+  return `Text("${node.content}")`;
 }
 
 function childrenHandler(node: HTMLASTNode): string | undefined {
   let output;
+  let enterSignal = globalConfig.forceNewLine ? "\n" : "";
   if (node.children?.length) {
     output = node.children?.map((item) => generateNodeString(item, node));
-    // 非文本节点强制换行
+    // add break link at the beginning, end and break of the children if needed.
     if (!output[0].startsWith('"')) {
-      output = output.join(",\n");
-      output = "\n" + output + ",\n";
+      output = output.join(`,${enterSignal}`);
+      output = enterSignal + output + "," + enterSignal;
     } else {
-      output = output.join(",\n");
+      output = output.join(`,${enterSignal}`);
     }
   }
 
   return output;
+}
+
+function defaultTextTagHandler(node: HTMLASTNode, parent?: HTMLASTNode) {
+  /**
+   * 1. no child, return Tag(name)
+   * 2. only one text child, return Name(text)
+   * 3. only one no text child, Tag(name).Children(dfs(node))
+   * 4. many child, return Tag(name).Children(dfs(nodes))
+   */
+
+  let labelName = getName(node.name || node.type);
+  let children = node.children;
+  let childrenListCall = childrenHandler(node);
+  let attrsCall = getAttrs(node.attrs);
+
+  if (children.length === 0) {
+    return `Tag("${node.name}")${attrsCall}`;
+  }
+
+  if (children.length === 1 && children[0].type === "text") {
+    return `${labelName}("${children[0].content}")${attrsCall}`;
+  }
+
+  return `Tag("${node.name}").Children(${childrenListCall})${attrsCall}`;
+}
+
+function specialTagHandler(node: HTMLASTNode) {
+  /**
+   * node here such as input call attr src default,it's a burden to handle it one by one.
+   */
+  let childrenListCall = childrenHandler(node);
+  let attrsCall = getAttrs(node.attrs);
+  let children = node.children;
+
+  if (children.length === 0) {
+    return `Tag("${node.name}").OmitEndTag()${attrsCall}`;
+  }
+  return `Tag("${node.name}").Children(${childrenListCall})${attrsCall}`;
 }

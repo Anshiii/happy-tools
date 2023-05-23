@@ -1,6 +1,6 @@
 
 #### TO DO
-1. [x] 一些标签可以直接使用字符串作为入参，但是一些要使用 Text(string)
-2. [x] 一些标签默认入参是文本节点，并且需要手动调用 Children 方法来塞入其他类型的子元素
-3. [ ] 个别标签例如 Img 的入参是属性不是子元素
-4. [ ] SVG 这类标签没有提供 API,需要用 RawHTML 注入
+1. [x] handle text node 
+2. [x] handle element that call the Text proactively
+3. [x] handle element without end tag
+4. [ ] special element like script.

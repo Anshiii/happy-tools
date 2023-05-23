@@ -1,14 +1,18 @@
 import { parse } from "html-to-ast";
 import generator from "./generator";
-import "./index.css";
 
-export function html2go(html: string) {
+export interface IOption {
+  forceNewLine: boolean;
+}
+
+export function html2go(html: string, option: IOption) {
+  console.log("---anshi---option", option);
   html = html.replace(/\s+(?=<)|(?<=>)\s+|\n/g, "");
   html = html.replace(/\s{2,}/g, " ");
   const ast = parse(html);
-  console.log("---anshi---ast", generator(ast));
+  console.log("---anshi---ast", generator(ast, option));
 
-  return generator(ast);
+  return generator(ast, option);
 }
 
 const htmlEle = document.querySelector(
@@ -42,12 +46,19 @@ const test = `<header class="container-instance container-header" data-navigatio
         <li><a href="#">Our company</a></li>
     </ul>
     <button class="container-header-menu">
-        <span class="container-header-menu-icon"></span>
+        <span class="container-header-menu-icon">
+          <img src="./path" alt="good pict">
+        </span>
     </button>
 </div>
 </header>`;
 htmlEle.value = test;
+
 document.querySelector("#convert")?.addEventListener("click", () => {
-  const result = html2go(htmlEle?.value.trim());
+  const forceNewLine = Boolean(
+    (document.querySelector("#force-new-line") as HTMLInputElement).checked
+  );
+  const result = html2go(htmlEle?.value.trim(), { forceNewLine });
+
   (resultEle as HTMLTextAreaElement).value = result;
 });
