@@ -1,4 +1,5 @@
 import { DefaultTextTag, SpecialTag } from "./constant";
+//@ts-ignore
 import { stringify } from "html-to-ast";
 import { IOption } from "./main";
 
@@ -17,7 +18,7 @@ export default function generator(ast: HTMLASTNode[], option: IOption): string {
 }
 
 // dfs
-function generateNodeString(node: HTMLASTNode, parent?: HTMLASTNode): string {
+function generateNodeString(node: HTMLASTNode): string {
   let labelName = getName(node.name || node.type);
 
   let attrsCall = getAttrs(node.attrs);
@@ -33,9 +34,9 @@ function generateNodeString(node: HTMLASTNode, parent?: HTMLASTNode): string {
    *
    */
   if (DefaultTextTag.includes(node.name)) {
-    return defaultTextTagHandler(node, parent);
+    return defaultTextTagHandler(node);
   } else if (labelName === "Text") {
-    return textHandler(node, parent);
+    return textHandler(node);
   } else if (labelName === "Svg") {
     return svgHandler(node);
   } else if (SpecialTag.includes(node.name)) {
@@ -73,7 +74,7 @@ function svgHandler(node: HTMLASTNode): string {
   return `RawHTML(\`${html}\`)`;
 }
 
-function textHandler(node: HTMLASTNode, parent?: HTMLASTNode): string {
+function textHandler(node: HTMLASTNode): string {
   return `Text("${node.content}")`;
 }
 
@@ -81,7 +82,7 @@ function childrenHandler(node: HTMLASTNode): string | undefined {
   let output;
   let enterSignal = globalConfig.forceNewLine ? "\n" : "";
   if (node.children?.length) {
-    output = node.children?.map((item) => generateNodeString(item, node));
+    output = node.children?.map((item) => generateNodeString(item));
     // add break link at the beginning, end and break of the children if needed.
     if (!output[0].startsWith('"')) {
       output = output.join(`,${enterSignal}`);
@@ -94,7 +95,7 @@ function childrenHandler(node: HTMLASTNode): string | undefined {
   return output;
 }
 
-function defaultTextTagHandler(node: HTMLASTNode, parent?: HTMLASTNode) {
+function defaultTextTagHandler(node: HTMLASTNode) {
   /**
    * 1. no child, return Tag(name)
    * 2. only one text child, return Name(text)

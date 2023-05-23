@@ -6,3 +6,4 @@
 4. [x] handle the svg used raw html
 5. [x] one-click copy
 6. [ ] special element like script.
+7. [ ] html validation

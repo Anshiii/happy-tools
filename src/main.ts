@@ -1,3 +1,4 @@
+// @ts-ignore
 import { parse } from "html-to-ast";
 import generator from "./generator";
 
