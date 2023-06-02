@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>html 2 htmlgo</title>
+  <style>
+    body {
+      font-family: monospace;
+    }
+
+    #app {
+      display: flex;
+    }
+
+    .input {
+      height: 80vh;
+      flex-grow: 1;
+    }
+
+    textarea {
+      vertical-align: middle;
+      border-color: rgba(56, 106, 32, .4);
+      background-color: rgb(253, 253, 245);
+      border-radius: 8px;
+      color: rgb(56, 106, 32);
+      outline: none;
+      padding: 8px 16px;
+    }
+
+    textarea:focus {
+      border-color: rgba(56, 106, 32, .8);
+
+    }
+
+    button {
+      transition: .2s cubic-bezier(.2, 0, 0, 1);
+      border-radius: 48px;
+      background: rgb(56, 106, 32);
+      outline: none;
+      /* border: 1px solid gray; */
+      border: none;
+      padding: 12px 24px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 32px;
+    }
+
+    button:hover {
+      background-color: rgba(56, 106, 32, .8);
+
+    }
+
+    .actions {
+      display: inline-block;
+      width: 10vw;
+      text-align: center;
+      align-self: center;
+      padding: 0 16px;
+    }
+
+    .actions input {
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <textarea name="html" id="text-html" class="input" cols="30" rows="10"></textarea>
+    <div class="actions">
+      <section>
+        <input id="force-new-line" name="force-new-line" type="checkbox" checked="true"> <label>force break</label>
+      </section>
+      <section>
+        <input id="auto-copy" name="auto-copy" type="checkbox" checked="true"> <label>auto copy</label>
+      </section>
+      <button id="convert">convert</button>
+    </div>
+    <textarea name="go" id="text-go" class="input" cols="30" rows="10"></textarea>
+
+  </div>
+  <script type="module" src="/src/html2go/main.ts"></script>
+</body>
+
+</html>

@@ -13,6 +13,7 @@
     "vite": "^4.3.2"
   },
   "dependencies": {
-    "html-to-ast": "^0.0.6"
+    "html-to-ast": "^0.0.6",
+    "idb-keyval": "^6.2.1"
   }
 }
